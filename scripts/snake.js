@@ -1,21 +1,23 @@
 const board = document.getElementById("game-board");
 const instructionText = document.getElementById("instruction-text");
 const logo = document.getElementById("logo");
+const score = document.getElementById("score");
+const highScoreText = document.getElementById("high-score");
 
 //Il serpente  è un array di oggetti, l'oggetto è contine la posizione del serpente
 let snake = [{ x: 10, y: 10 }]; //x:10, y:10 perchè abbiamo dato delle dimensioni fiesse, quidi inizierà più o meno al centro
 const gridSize = 20;
 let direction = "right";
 let gameInterval;
-let gameSpeedDelay = 300;
+let gameSpeedDelay = 200;
 let gameStarted = false;
-
+let highScore = 0;
 //disegna il serpente
 const drawSnake = () => {
   snake.forEach((segment) => {
-    const snakeElemente = createGameElement("div", "snake");
-    setPoistion(snakeElemente, segment);
-    board.appendChild(snakeElemente);
+    const snakeElement = createGameElement("div", "snake");
+    setPosition(snakeElement, segment);
+    board.appendChild(snakeElement);
   });
 };
 
@@ -38,15 +40,17 @@ const createGameElement = (tag, className) => {
 };
 
 //set the position of the snake or the food
-const setPoistion = (element, position) => {
+const setPosition = (element, position) => {
   element.style.gridColumn = position.x;
   element.style.gridRow = position.y;
 };
 
 const drawFood = () => {
-  const foodElement = createGameElement("div", "food");
-  setPoistion(foodElement, food);
-  board.append(foodElement);
+  if (gameStarted) {
+    const foodElement = createGameElement("div", "food");
+    setPosition(foodElement, food);
+    board.append(foodElement);
+  }
 };
 
 const generateFood = () => {
@@ -89,15 +93,15 @@ const move = () => {
 
   if (head.x === food.x && head.y === food.y) {
     food = generateFood();
-    clearInterval(gameInterval); //reaset the movement
+    clearInterval(gameInterval); //reset the movement
     gameInterval = setInterval(() => {
       move();
+      checkCollision();
       draw();
     }, gameSpeedDelay);
   } else {
     snake.pop();
   }
-
 };
 
 // //test
@@ -112,7 +116,7 @@ const startGame = () => {
   logo.style.display = "none";
   gameInterval = setInterval(() => {
     move();
-    // checkCollision()
+    checkCollision();
     draw();
   }, gameSpeedDelay);
 };
@@ -128,23 +132,76 @@ const handleKeyPress = (event) => {
   } else {
     switch (event.key) {
       case "ArrowUp":
-        direction = "up";
+        if (direction !== "down") direction = "up";
         break;
       case "ArrowDown":
-        direction = "down";
+        if (direction !== "up") direction = "down";
         break;
       case "ArrowLeft":
-        direction = "left";
+        if (direction !== "right") direction = "left";
         break;
       case "ArrowRight":
-        direction = "right";
+        if (direction !== "left") direction = "right";
         break;
     }
   }
 };
 
+const increaseSpead = () => {
+  //   console.log(gameSpeedDelay);
+  if (gameSpeedDelay > 150) {
+    gameSpeedDelay -= 5;
+  } else if (gameSpeedDelay > 100) {
+    gameSpeedDelay -= 3;
+  } else if (gameSpeedDelay > 50) {
+    gameSpeedDelay -= 2;
+  } else if (gameSpeedDelay > 25) {
+    gameSpeedDelay -= 1;
+  }
+};
 
+const checkCollision = () => {
+  const head = snake[0];
 
+  if (head.x < 1 || head.x > gridSize || head.y < 1 || head.y > gridSize) {
+    resetGame();
+  }
 
-document.addEventListener('keydown', handleKeyPress)
-startGame()
+  for (let i = 1; i < snake.length; i++) {
+    if (head.x === snake[i].x && head.y === snake[i].y) {
+      resetGame();
+    }
+  }
+};
+
+const resetGame = () => {
+  updateHighScore();
+  stopGame();
+  snake = [{ x: 10, y: 10 }];
+  food = generateFood();
+  direction = "right";
+  gameSpeedDelay = 200;
+  updateScore();
+};
+
+const updateScore = () => {
+  const currentScore = snake.length - 1;
+  score.textContent = currentScore.toString().padStart(3, "0");
+};
+
+const stopGame = () => {
+  clearInterval(gameInterval);
+  gameStarted = false;
+  instructionText.style.display = 'block';
+  logo.style.display = "block";
+};
+
+const updateHighScore = () => {
+  const currentScore = snake.length - 1;
+  if (currentScore > highScore) {
+    highScore = currentScore;
+    highScoreText.textContent = highScore.toString().padStart(3, "0");
+  }
+  highScoreText.style.display = "block";
+};
+document.addEventListener("keydown", handleKeyPress);
