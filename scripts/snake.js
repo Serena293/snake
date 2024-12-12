@@ -127,7 +127,7 @@ const startGame = () => {
   gameStarted = true;
   instructionText.style.display = "none";
   logo.style.display = "none";
-  loadHighScore()
+  loadHighScore( )
   gameInterval = setInterval(() => {
     move();
     checkCollision();
