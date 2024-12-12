@@ -4,15 +4,20 @@ const logo = document.getElementById("logo");
 const score = document.getElementById("score");
 const highScoreText = document.getElementById("high-score");
 
-//Il serpente  è un array di oggetti, l'oggetto è contine la posizione del serpente
+// //Il serpente  è un array di oggetti, l'oggetto è contine la posizione del serpente
 let snake = [{ x: 10, y: 10 }]; //x:10, y:10 perchè abbiamo dato delle dimensioni fiesse, quidi inizierà più o meno al centro
 const gridSize = 20;
+let gameStarted = false;
 let direction = "right";
 let gameInterval;
 let gameSpeedDelay = 200;
-let gameStarted = false;
+
+
 let highScore = 0;
-//disegna il serpente
+
+// disegna il serpente
+//per ogni oggetto contenuto nell'array snake (segment) invoca due funzioni
+//una che crea l'elemento e una che lo posiziona
 const drawSnake = () => {
   snake.forEach((segment) => {
     const snakeElement = createGameElement("div", "snake");
@@ -21,32 +26,39 @@ const drawSnake = () => {
   });
 };
 
-//Draw the game board and the food
-//Set to a clear board every time the function is called
-//and create the new snake
+
+
+// //Draw the game board and the food
+// //Set to a clear board every time the function is called
+// //and create the new snake
 const draw = () => {
   board.innerHTML = "";
   drawSnake();
   drawFood();
+  updateScore()
 };
 
-//Create a snake or food
-//Function with two parameters. When we call the function inside drowSnake
-//it will take the parameters 'div' and 'snake'
+// //Create a snake or food
+// //Function with two parameters. When we call the function inside drowSnake
+// //it will take the parameters 'div' and 'snake'
+
 const createGameElement = (tag, className) => {
   const element = document.createElement(tag);
   element.className = className;
   return element;
 };
 
-//set the position of the snake or the food
+// set the position of the snake or the food
+
 const setPosition = (element, position) => {
   element.style.gridColumn = position.x;
   element.style.gridRow = position.y;
 };
 
+//It draws a random food, it uses the setPosition function with the parameter food
+//food gets randomly generated
 const drawFood = () => {
-  if (gameStarted) {
+  if(gameStarted){
     const foodElement = createGameElement("div", "food");
     setPosition(foodElement, food);
     board.append(foodElement);
@@ -60,8 +72,9 @@ const generateFood = () => {
 };
 let food = generateFood();
 
-//to move the snake we use the spread operetor, so that we create a copy
-// of the intex 0 of the array
+// //to move the snake we use the spread operetor, so that we create a copy
+// // of the intex 0 of the array
+
 const move = () => {
   const head = { ...snake[0] };
   switch (direction) {
@@ -82,14 +95,14 @@ const move = () => {
       break;
   }
   snake.unshift(head); //creaiamo una nuova testa e la mettiamo all'inizio di snake.
-  // snake.pop(); //rimuoviamo l'ultimo pezzo della coda.
-  //quindi in realtà il serpente non si muove  ma lo assmbliamo e disassembliamo
-  //questo deve avvenire quando non colpiamo il cibo, quando non colpiamo il cibo
-  //il serpente deve rimanere della dimensione
+//   // snake.pop(); //rimuoviamo l'ultimo pezzo della coda.
+//   //quindi in realtà il serpente non si muove  ma lo assmbliamo e disassembliamo
+//   //questo deve avvenire quando non colpiamo il cibo, quando non colpiamo il cibo
+//   //il serpente deve rimanere della dimensione
 
-  //l'if considera qundo il serpente colpisce il cibo, ovvero quando la testa del serpente
-  //si ha le stesse esatte cordinate del cibo. In questo caso non c'è bisogno del pop, poichè
-  //le dimensioni del serpente deveno aumentare
+//   //l'if considera qundo il serpente colpisce il cibo, ovvero quando la testa del serpente
+//   //si ha le stesse esatte cordinate del cibo. In questo caso non c'è bisogno del pop, poichè
+//   //le dimensioni del serpente deveno aumentare
 
   if (head.x === food.x && head.y === food.y) {
     food = generateFood();
@@ -104,11 +117,11 @@ const move = () => {
   }
 };
 
-// //test
-// setInterval(() => {
-//   move()
-//   draw()
-// },200)
+// // //test
+// // setInterval(() => {
+// //   move()
+// //   draw()
+// // },200)
 
 const startGame = () => {
   gameStarted = true;
@@ -121,14 +134,16 @@ const startGame = () => {
   }, gameSpeedDelay);
 };
 
-// draw()
-//le due condizioni servono a coprie tutti i tipi di browser
+
+// //le due condizioni servono a coprie tutti i tipi di browser
 const handleKeyPress = (event) => {
+
   if (
     (!gameStarted && event.code === "Space") ||
     (!gameStarted && event.key === " ")
   ) {
     startGame();
+    updateScore()
   } else {
     switch (event.key) {
       case "ArrowUp":
@@ -185,8 +200,8 @@ const resetGame = () => {
 };
 
 const updateScore = () => {
-  const currentScore = snake.length - 1;
-  score.textContent = currentScore.toString().padStart(3, "0");
+ const currentScore = snake.length - 1;
+  score.textContent = currentScore
 };
 
 const stopGame = () => {
@@ -204,4 +219,8 @@ const updateHighScore = () => {
   }
   highScoreText.style.display = "block";
 };
+
+
 document.addEventListener("keydown", handleKeyPress);
+
+ 
