@@ -127,6 +127,7 @@ const startGame = () => {
   gameStarted = true;
   instructionText.style.display = "none";
   logo.style.display = "none";
+  loadHighScore()
   gameInterval = setInterval(() => {
     move();
     checkCollision();
@@ -143,7 +144,7 @@ const handleKeyPress = (event) => {
     (!gameStarted && event.key === " ")
   ) {
     startGame();
-    updateScore()
+    // updateScore()
   } else {
     switch (event.key) {
       case "ArrowUp":
@@ -213,13 +214,21 @@ const stopGame = () => {
 
 const updateHighScore = () => {
   const currentScore = snake.length - 1;
+  const savedHighScore = parseInt(localStorage.getItem("highScore"), 10) || 0;
   if (currentScore > highScore) {
     highScore = currentScore;
     highScoreText.textContent = highScore.toString().padStart(3, "0");
+    localStorage.setItem('highScore', highScore)
   }
   highScoreText.style.display = "block";
 };
 
+
+const loadHighScore = () => {
+  const savedHighScore = parseInt(localStorage.getItem("highScore"), 10) || 0;
+  highScore = savedHighScore;
+  highScoreText.textContent = highScore.toString().padStart(3, "0");
+};
 
 document.addEventListener("keydown", handleKeyPress);
 
